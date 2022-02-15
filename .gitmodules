@@ -1,3 +1,0 @@
-[submodule "mathlib"]
-	path = mathlib
-	url = git@github.com:leanprover-community/mathlib
