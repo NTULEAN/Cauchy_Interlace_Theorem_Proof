@@ -1,0 +1,8 @@
+[package]
+name = "matrix"
+version = "0.1"
+lean_version = "leanprover-community/lean:3.33.0"
+path = "src"
+
+[dependencies]
+mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "f12b3d91df945d2f5accff9fd96639bdb61661f3"}
