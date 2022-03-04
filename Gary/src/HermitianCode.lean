@@ -88,7 +88,7 @@ begin
   ext,
   simp only [vec_conj, mul_vec, dot_product, conj_re, coe_matrix_coe_elem, sum_complex_re, mul_re, of_real_im, zero_mul],
   simp only [vec_conj, mul_vec, dot_product, conj_im, coe_matrix_coe_elem, sum_complex_im, mul_im, add_zero, of_real_im,
-    zero_mul, sum_neg_distrib, mul_neg_eq_neg_mul_symm]
+    zero_mul, sum_neg_distrib],
 end
 
 lemma vec_norm_sq_zero {x : n → ℂ} (H_dot : dot_product (vec_conj x) x = 0) : x = 0 :=
