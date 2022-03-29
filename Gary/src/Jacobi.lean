@@ -23,7 +23,7 @@ end matrix
 
 -- def make_mat (M : matrix n n ℂ) : matrix n n ℂ := λ i: n, (λ j : n, (M i j))
 
-lemma trace_form (A : matrix n n ℂ) (B : matrix n n ℂ) : ∑ (i : n), ∑ (j : n), (A i j)*(B i j) = ( (A.transpose).mul B).trce :=
+lemma trace_form (A : matrix n n ℂ) (B : matrix n n ℂ) : ∑ (i : n), ∑ (j : n), (A i j)*(B i j) = matrix.trace n ℂ ℂ ( (A.transpose).mul B) :=
 begin
   simp only [matrix.trce, matrix.mul],
   -- ∑ (i j : n), A i j * B i j = ∑ (x : n), Aᵀ x ⬝ᵥ λ (j : n), B j x
