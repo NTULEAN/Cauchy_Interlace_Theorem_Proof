@@ -1,57 +1,47 @@
-import data.fintype.basic
-import data.real.basic
 import data.matrix.basic
-import linear_algebra.matrix
 import analysis.calculus.fderiv
 import analysis.calculus.deriv
-
-open_locale matrix big_operators complex_conjugate
-open fintype finset matrix complex 
-open_locale topological_space classical nnreal filter asymptotics ennreal
-local attribute [instance] real.nondiscrete_normed_field matrix.normed_group matrix.normed_space -- introduce an arbitrary canonical instance of normed_group and normed_space.
-
+import linear_algebra.matrix.adjugate
+import analysis.normed_space.finite_dimension
+import topology.algebra.module.basic
+open matrix
+open_locale matrix
 variable n: ℕ 
-def mat := matrix (fin n) (fin n) ℝ -- mat n is square matrix of size n 
-variable A : ℝ -> (mat n) -- A is any map from R to square matrix of size n
-def 𝕜 := ℝ -- it's not scaling factor σ (see notation); it's the common semiring of the two modules you are operating. 
--- def differentiableA := differentiable ℝ A -- that's not the idea
 
--- some examples for understanding:
-  -- dA / dt, under regular derivative.
-  noncomputable def DA [normed_group (mat n)] [normed_space ℝ (mat n)] (x: ℝ): (mat n) := deriv A x
+variables {𝕜: Type} [nondiscrete_normed_field 𝕜] -- def 𝕜 := ℝ if you wish to simp things
+local attribute [instance] real.nondiscrete_normed_field matrix.normed_group matrix.normed_space -- introduce an arbitrary canonical instance of normed_group and normed_space.
+local notation `mat`:1000 := matrix (fin n) (fin n) 𝕜
+local notation `trc`:1000 := trace (fin n) 𝕜 𝕜
 
-  -- Frechet dA / dt, under arbitrary canonical norm on vector space of matrices.
-  noncomputable def DA_fderiv [normed_group (mat n)] [normed_space ℝ (mat n)] (x: ℝ): (mat n) := fderiv ℝ A x (1: ℝ)
+-- theorem jacobi {A': 𝕜 →L[𝕜] mat} (A: 𝕜 -> mat) (t: 𝕜) (h: has_fderiv_at A A' t): 
+--   has_fderiv_at (det ∘ A ) (trace (fin n) 𝕜 𝕜 ((adjugate (A t)) ⬝ (A' t))) t := 
 
-  -- Frechet dA / dt == dA / dt as in usual derivative.
-  lemma triv [normed_group (mat n)] [normed_space ℝ (mat n)] : DA = DA_fderiv := begin
-    sorry
-    -- strangely, unable to fold def
-  end
-  -- we can further prove the deriv corresponds to elementwise derivative from two applications of has_deriv_at_pi
-  lemma triv2 [normed_group (mat n)] [normed_space ℝ (mat n)] : ∀x, deriv A x = fderiv ℝ A x (1: ℝ) := begin
-    unfold deriv, intro x, refl,
-  end
+def detdiff (A: mat): ∃ det': mat →L[𝕜] 𝕜, has_fderiv_at det det' A := begin -- determinant is differentiable
+  sorry
+end
+#check (1 : 𝕜 →L[𝕜] 𝕜).smul_right
 
-  -- d det A(t) / dt, under arbitrary canonical norm on vector space of matrices.
-  noncomputable def DDetA (x: ℝ) := fderiv ℝ (det ∘ A) x
+lemma linearity (f: 𝕜 →L[𝕜] 𝕜): (1: 𝕜 →L[𝕜] 𝕜).smul_right (f 1) = f := begin
+  have h: ∀x: 𝕜, (1: 𝕜 →L[𝕜] 𝕜).smul_right (f 1) x = f x := by {
+    intro x,
+    sorry,
+  },
+  simp,
+end
 
--- Jacobi's Formula: For any differentiable map A, ...
-theorem jacobi [normed_group (mat n)] [normed_space ℝ (mat n)]: 
-  ∀(x: ℝ) , differentiable_at ℝ A x -> deriv (det ∘ A) x = trace (fin n) ℝ ℝ (adjugate(A x) ⬝ (deriv A x)) :=
-begin
-  intro x,
+-- #check [has_coe_to_fun continuous_linear_map]
+theorem jacobi {A': 𝕜 →L[𝕜] mat} (A: 𝕜 -> mat) (t: 𝕜) (h: has_fderiv_at A A' t): 
+  has_deriv_at (det ∘ A) (trc (adjugate (A t) ⬝ (A' t))) t := begin
+    -- L1: (det ∘ A)'(t) = (det)'(A t) ∘ A'(t)
+    cases detdiff n (A t) with det' h',
+    have L1: has_fderiv_at (det ∘ A) (det'.comp A') t := has_fderiv_at.comp t h' h,
 
-  set f'comp := deriv (det ∘ A) with hmh,
-  set f'det: mat n →L[ℝ] ℝ := fderiv ℝ det (A x) with f1h,
-  set f'A:  ℝ →L[ℝ] (mat n) := fderiv ℝ A x with f2h,
+    have suffice: (det'.comp A') 1 = (trace (fin n) 𝕜 𝕜 (adjugate (A t) ⬝ (A' t))) := sorry,
 
-  -- L1
-  have L1: f'comp = f'det ∘ f'A := begin
-    have hg : has_fderiv_at det (f'det: (matrix (fin n) (fin n) ℝ) →L[ℝ] ℝ) (A x),
-    
-  end
-
-
-
+    rw ← suffice,
+    unfold has_deriv_at,
+    unfold has_fderiv_at at L1,
+    unfold has_deriv_at_filter,
+    have obvious: (1 : 𝕜 →L[𝕜] 𝕜).smul_right (det'.comp A' 1) = (det'.comp A') := linearity (det'.comp A'),
+    rw obvious, exact L1,
 end
